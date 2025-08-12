@@ -1,0 +1,91 @@
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+
+# API Keys & Sensitive Data
+config.json
+secrets.json
+*.key
+*.pem
+
+# Call Recordings & Media
+recordings/
+calls/
+audio/
+*.wav
+*.mp3
+*.m4a
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+data/*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Test Coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+

@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Response Testing Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            border-bottom-color: #4facfe;
+            color: #4facfe;
+        }
+
+        .tab:hover {
+            background: #f8f9fa;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .response-area {
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 100px;
+        }
+
+        .conversation {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .message.ai {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+
+        .message.user {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+        }
+
+        .message .speaker {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .message .content {
+            color: #333;
+        }
+
+        .message .timestamp {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .twiml-display {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .voice-preview {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 Voice Response Testing Tool</h1>
+            <p>Test and experiment with AI voice responses without making actual phone calls</p>
+        </div>
+
+        <div class="content">
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('conversation')">Conversation Test</div>
+                <div class="tab" onclick="showTab('voice')">Voice Settings</div>
+                <div class="tab" onclick="showTab('settings')">AI Settings</div>
+            </div>
+
+            <!-- Conversation Test Tab -->
+            <div id="conversation" class="tab-content active">
+                <div class="section">
+                    <h3>🤖 AI Conversation Test</h3>
+                    <div class="form-group">
+                        <label>Lead Information:</label>
+                        <div class="settings-grid">
+                            <input type="text" id="firstName" class="form-control" placeholder="First Name" value="John">
+                            <input type="text" id="lastName" class="form-control" placeholder="Last Name" value="Smith">
+                            <input type="email" id="email" class="form-control" placeholder="Email" value="john.smith@example.com">
+                            <input type="text" id="company" class="form-control" placeholder="Company" value="Tech Solutions Inc">
+                        </div>
+                    </div>
+                    
+                    <button class="btn" onclick="generateInitialResponse()">Generate Initial Response</button>
+                    <button class="btn btn-secondary" onclick="clearConversation()">Clear Conversation</button>
+                </div>
+
+                <div class="section">
+                    <h3>💬 Conversation Flow</h3>
+                    <div class="form-group">
+                        <label>Your Response (simulate lead):</label>
+                        <input type="text" id="userInput" class="form-control" placeholder="Type your response here...">
+                    </div>
+                    <button class="btn" onclick="generateResponse()">Generate AI Response</button>
+                </div>
+
+                <div class="section">
+                    <h3>📝 Conversation History</h3>
+                    <div id="conversationHistory" class="conversation">
+                        <p style="text-align: center; color: #666;">No conversation yet. Start by generating an initial response.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>🎵 Generated TwiML</h3>
+                    <div id="twimlOutput" class="twiml-display">No TwiML generated yet.</div>
+                    <button class="btn" onclick="playLastResponse()" style="margin-top: 10px;">🔊 Play Audio</button>
+                </div>
+            </div>
+
+            <!-- Voice Settings Tab -->
+            <div id="voice" class="tab-content">
+                <div class="section">
+                    <h3>🎤 Voice Configuration</h3>
+                    <div class="settings-grid">
+                        <div class="form-group">
+                            <label>Voice:</label>
+                            <select id="voiceSelect" class="form-control">
+                                {% for voice in voices %}
+                                <option value="{{ voice.id }}" {% if voice.id == current_settings.voice %}selected{% endif %}>
+                                    {{ voice.name }} - {{ voice.description }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Speech Rate (0.8-1.2):</label>
+                            <input type="range" id="speechRate" class="form-control" min="0.8" max="1.2" step="0.1" value="{{ current_settings.speech_rate }}">
+                            <span id="speechRateValue">{{ current_settings.speech_rate }}</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Pitch (0.8-1.2):</label>
+                            <input type="range" id="pitch" class="form-control" min="0.8" max="1.2" step="0.1" value="{{ current_settings.pitch }}">
+                            <span id="pitchValue">{{ current_settings.pitch }}</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" onclick="testVoiceSettings()">Test Voice Settings</button>
+                    <button class="btn btn-success" onclick="saveVoiceSettings()">Save Voice Settings</button>
+                </div>
+
+                <div class="section">
+                    <h3>🎵 Voice Preview</h3>
+                    <div class="form-group">
+                        <label>Test Text:</label>
+                        <textarea id="testText" class="form-control" rows="3">Hello! This is a test of the voice settings. How does this sound to you?</textarea>
+                    </div>
+                    <div id="voicePreview" class="voice-preview" style="display: none;">
+                        <strong>Generated TwiML:</strong>
+                        <div id="voiceTwiml" class="twiml-display"></div>
+                        <button class="btn" onclick="playVoiceTest()" style="margin-top: 10px;">🔊 Play Audio</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Settings Tab -->
+            <div id="settings" class="tab-content">
+                <div class="section">
+                    <h3>🤖 AI Configuration</h3>
+                    <div class="settings-grid">
+                        <div class="form-group">
+                            <label>AI Model:</label>
+                            <select id="aiModel" class="form-control">
+                                <option value="gpt-4" {% if ai_settings.model == 'gpt-4' %}selected{% endif %}>GPT-4</option>
+                                <option value="gpt-3.5-turbo" {% if ai_settings.model == 'gpt-3.5-turbo' %}selected{% endif %}>GPT-3.5 Turbo</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Max Tokens (50-500):</label>
+                            <input type="number" id="maxTokens" class="form-control" min="50" max="500" value="{{ ai_settings.max_tokens }}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Temperature (0.0-1.0):</label>
+                            <input type="range" id="temperature" class="form-control" min="0.0" max="1.0" step="0.1" value="{{ ai_settings.temperature }}">
+                            <span id="temperatureValue">{{ ai_settings.temperature }}</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Conversation Memory Turns:</label>
+                            <input type="number" id="memoryTurns" class="form-control" min="1" max="10" value="{{ ai_settings.conversation_memory_turns }}">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="saveAISettings()">Save AI Settings</button>
+                </div>
+            </div>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Processing...</p>
+            </div>
+
+            <div id="alerts"></div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Update range value displays
+        document.getElementById('speechRate').addEventListener('input', function() {
+            document.getElementById('speechRateValue').textContent = this.value;
+        });
+
+        document.getElementById('pitch').addEventListener('input', function() {
+            document.getElementById('pitchValue').textContent = this.value;
+        });
+
+        document.getElementById('temperature').addEventListener('input', function() {
+            document.getElementById('temperatureValue').textContent = this.value;
+        });
+
+        // Show alert
+        function showAlert(message, type = 'success') {
+            const alerts = document.getElementById('alerts');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alerts.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // Show/hide loading
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // Generate initial AI response
+        async function generateInitialResponse() {
+            showLoading();
+            
+            const leadInfo = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                companyName: document.getElementById('company').value
+            };
+
+            try {
+                const response = await fetch('/api/generate_response', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        lead_info: leadInfo,
+                        is_initial: true
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateConversationHistory(data.conversation_history);
+                    updateTwimlOutput(data.twiml);
+                    
+                    // Store audio data for playback
+                    lastResponse = data.ai_response;
+                    if (data.browser_voice) {
+                        lastBrowserVoice = getBrowserVoice(data.browser_voice.name);
+                    }
+                    
+                    showAlert('Initial response generated successfully!');
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error generating response: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Generate AI response to user input
+        async function generateResponse() {
+            const userInput = document.getElementById('userInput').value.trim();
+            if (!userInput) {
+                showAlert('Please enter a response first.', 'error');
+                return;
+            }
+
+            showLoading();
+            
+            const leadInfo = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                companyName: document.getElementById('company').value
+            };
+
+            try {
+                const response = await fetch('/api/generate_response', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        lead_info: leadInfo,
+                        user_input: userInput,
+                        is_initial: false
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateConversationHistory(data.conversation_history);
+                    updateTwimlOutput(data.twiml);
+                    document.getElementById('userInput').value = '';
+                    
+                    // Store audio data for playback
+                    lastResponse = data.ai_response;
+                    if (data.browser_voice) {
+                        lastBrowserVoice = getBrowserVoice(data.browser_voice.name);
+                    }
+                    
+                    showAlert('Response generated successfully!');
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error generating response: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Clear conversation
+        async function clearConversation() {
+            try {
+                const response = await fetch('/api/clear_conversation', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('conversationHistory').innerHTML = 
+                        '<p style="text-align: center; color: #666;">No conversation yet. Start by generating an initial response.</p>';
+                    document.getElementById('twimlOutput').textContent = 'No TwiML generated yet.';
+                    showAlert('Conversation cleared successfully!');
+                }
+            } catch (error) {
+                showAlert('Error clearing conversation: ' + error.message, 'error');
+            }
+        }
+
+        // Test voice settings
+        async function testVoiceSettings() {
+            const voiceSettings = {
+                voice: document.getElementById('voiceSelect').value,
+                speech_rate: document.getElementById('speechRate').value,
+                pitch: document.getElementById('pitch').value
+            };
+
+            const testText = document.getElementById('testText').value;
+
+            try {
+                const response = await fetch('/api/test_voice', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: testText,
+                        voice_settings: voiceSettings
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('voiceTwiml').textContent = data.twiml;
+                    document.getElementById('voicePreview').style.display = 'block';
+                    
+                    // Store test data for playback
+                    lastTestText = testText;
+                    if (data.browser_voice) {
+                        lastTestVoice = getBrowserVoice(data.browser_voice.name);
+                    }
+                    
+                    showAlert('Voice test completed!');
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error testing voice: ' + error.message, 'error');
+            }
+        }
+
+        // Save voice settings
+        async function saveVoiceSettings() {
+            const voiceSettings = {
+                voice: document.getElementById('voiceSelect').value,
+                speech_rate: document.getElementById('speechRate').value,
+                pitch: document.getElementById('pitch').value
+            };
+
+            try {
+                const response = await fetch('/api/save_settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        voice_settings: voiceSettings
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('Voice settings saved successfully!');
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error saving settings: ' + error.message, 'error');
+            }
+        }
+
+        // Save AI settings
+        async function saveAISettings() {
+            const aiSettings = {
+                model: document.getElementById('aiModel').value,
+                max_tokens: parseInt(document.getElementById('maxTokens').value),
+                temperature: parseFloat(document.getElementById('temperature').value),
+                conversation_memory_turns: parseInt(document.getElementById('memoryTurns').value)
+            };
+
+            try {
+                const response = await fetch('/api/save_settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ai_settings: aiSettings
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('AI settings saved successfully!');
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error saving settings: ' + error.message, 'error');
+            }
+        }
+
+        // Update conversation history
+        function updateConversationHistory(history) {
+            const container = document.getElementById('conversationHistory');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">No conversation yet.</p>';
+                return;
+            }
+
+            let html = '';
+            history.forEach(turn => {
+                const timestamp = new Date(turn.timestamp).toLocaleTimeString();
+                html += `
+                    <div class="message ${turn.speaker.toLowerCase()}">
+                        <div class="speaker">${turn.speaker}</div>
+                        <div class="content">${turn.content}</div>
+                        <div class="timestamp">${timestamp}</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Update TwiML output
+        function updateTwimlOutput(twiml) {
+            document.getElementById('twimlOutput').textContent = twiml;
+        }
+
+        // Enter key to submit user input
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateResponse();
+            }
+        });
+
+        // Global variables for audio playback
+        let lastResponse = '';
+        let lastBrowserVoice = null;
+        let lastTestText = '';
+        let lastTestVoice = null;
+
+        // Initialize speech synthesis
+        function initSpeechSynthesis() {
+            if ('speechSynthesis' in window) {
+                // Wait for voices to load
+                speechSynthesis.onvoiceschanged = function() {
+                    console.log('Speech synthesis voices loaded');
+                };
+                return true;
+            } else {
+                showAlert('Speech synthesis not supported in this browser', 'error');
+                return false;
+            }
+        }
+
+        // Play the last AI response
+        function playLastResponse() {
+            if (!lastResponse) {
+                showAlert('No response to play. Generate a response first.', 'error');
+                return;
+            }
+
+            if (!initSpeechSynthesis()) return;
+
+            const utterance = new SpeechSynthesisUtterance(lastResponse);
+            
+            if (lastBrowserVoice) {
+                utterance.voice = lastBrowserVoice;
+                utterance.lang = lastBrowserVoice.lang;
+            }
+            
+            // Set speech rate and pitch based on current settings
+            const speechRate = parseFloat(document.getElementById('speechRate').value);
+            const pitch = parseFloat(document.getElementById('pitch').value);
+            
+            utterance.rate = speechRate;
+            utterance.pitch = pitch;
+            
+            speechSynthesis.speak(utterance);
+            showAlert('Playing audio...', 'success');
+        }
+
+        // Play voice test audio
+        function playVoiceTest() {
+            if (!lastTestText) {
+                showAlert('No test text to play. Test voice settings first.', 'error');
+                return;
+            }
+
+            if (!initSpeechSynthesis()) return;
+
+            const utterance = new SpeechSynthesisUtterance(lastTestText);
+            
+            if (lastTestVoice) {
+                utterance.voice = lastTestVoice;
+                utterance.lang = lastTestVoice.lang;
+            }
+            
+            // Set speech rate and pitch based on current settings
+            const speechRate = parseFloat(document.getElementById('speechRate').value);
+            const pitch = parseFloat(document.getElementById('pitch').value);
+            
+            utterance.rate = speechRate;
+            utterance.pitch = pitch;
+            
+            speechSynthesis.speak(utterance);
+            showAlert('Playing test audio...', 'success');
+        }
+
+        // Get browser voice by name
+        function getBrowserVoice(voiceName) {
+            const voices = speechSynthesis.getVoices();
+            return voices.find(voice => voice.name === voiceName) || voices[0];
+        }
+
+        // Initialize speech synthesis when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initSpeechSynthesis();
+        });
+    </script>
+</body>
+</html> 
