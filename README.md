@@ -177,32 +177,6 @@ Modify the `.env` file to customize:
 - **Input Validation**: All external inputs are sanitized
 - **HTTPS**: Webhook endpoints require secure connections
 
-## 🚨 Troubleshooting
-
-### Common Issues
-
-**Configuration Errors**
-```bash
-# Check environment variables
-python -c "import os; print('GHL_API_KEY:', os.getenv('GHL_API_KEY', 'NOT SET'))"
-```
-
-**Import Errors**
-```bash
-# Verify Python path
-python -c "import sys; print('\\n'.join(sys.path))"
-```
-
-**API Connection Issues**
-```bash
-# Test individual services
-python tests/test_ghl_leads.py
-python tests/test_twilio_call.py
-```
-
-### Logs
-Check application logs in the `logs/` directory for detailed error information.
-
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -215,42 +189,6 @@ Check application logs in the `logs/` directory for detailed error information.
 
 This project is licensed under the **Apache License, Version 2.0** - see the [LICENSE](LICENSE) file for details.
 
-### **What Apache 2.0 License Means for You:**
-
-✅ **You Can:**
-- Use Setter.AI commercially
-- Modify and customize the code
-- Distribute and sell the software
-- Use it in proprietary applications
-- Sublicense to others
-- Patent protection included
-
-✅ **You Must:**
-- Include the original license notice
-- Include copyright notice
-- State any changes made to the code
-- Include NOTICE file if present
-
-✅ **You're Protected:**
-- No warranty liability
-- No damages liability
-- Patent protection and termination
-- Maximum freedom to use
-
-### **Why Apache 2.0 License?**
-- **Enterprise Ready:** Preferred by large companies
-- **Patent Protection:** Includes patent license and termination
-- **Commercial Success:** Perfect for business tools
-- **Legal Clarity:** Well-defined terms and conditions
-- **Industry Standard:** Used by major tech companies
-
-## 🆘 Support
-
-- **Documentation**: Check this README and inline code comments
-- **Issues**: Report bugs and feature requests via GitHub Issues
-- **Configuration**: Verify your `.env` file and API keys
-- **Logs**: Check the `logs/` directory for error details
-
 ## 🔮 Roadmap
 
 - [ ] Multi-language support
@@ -259,7 +197,6 @@ This project is licensed under the **Apache License, Version 2.0** - see the [LI
 - [ ] Machine learning optimization
 - [ ] Mobile application
 - [ ] API rate limiting and optimization
-
 ---
 
 **Built with ❤️ for modern sales teams**
